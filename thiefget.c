@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
   {
     
 // tempo em milesegundos
-   serialread(fd, buf, '\n');
+   serialread(fd, buf, '\n',16);
    printf("====================\nread: %s\ncounter: %d\n===================\n",buf,counter);
 
      if(strcmp(buf,"1")>0)
@@ -110,27 +110,33 @@ int main(int argc, char *argv[])
  exit(EXIT_SUCCESS);    
 } 
 
-int serialread(int fd, char* buf, char until)
+// leitura serial
+int serialread(int fd, char* buf, char until,int max)
 {
  char b[1];
- int i=0;
- do { 
-  int n=read(fd, b, 1);  
-  if(n==-1) 
-    return -1;    
-  if(!n) 
-  {
-   usleep(16000); 
-   continue;
-  }
-  buf[i] = b[0]; 
-  i++;
- } while(b[0]!=until);
+ int i = 0;
 
- buf[i]=0;  
+	do { 
+		int n = read( fd, b, 1 );  
+
+		if( n==-1 ) 
+			return -1;    
+		if( !n ) 
+		{
+			usleep(16000); 
+			continue;
+		}
+
+		buf[i] = b[0]; 
+		i++;
+
+	} while ( b[0]!=until && max != i );
+
+	buf[i] = 0;  
 
  return 0;
 }
+
 
 int serialboot(const char* serialport, int baud)
 {
